@@ -31,7 +31,6 @@ def get_args():
     parser.add_argument("--num_processes", type=int, default=8)
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
-    parser.add_argument("--log_path", type=str, default="tensorboard/ppo_super_mario_bros")
     parser.add_argument("--saved_path", type=str, default="trained_models")
     args = parser.parse_args()
     return args
@@ -43,10 +42,6 @@ def train(args):
         torch.cuda.manual_seed(123)
     else:
         torch.manual_seed(123)
-    # 创建保存日志的文件夹
-    if os.path.isdir(args.log_path):
-        shutil.rmtree(args.log_path)
-    os.makedirs(args.log_path)
     # 创建保存模型的文件夹
     if not os.path.isdir(args.saved_path):
         os.makedirs(args.saved_path)
