@@ -5,7 +5,7 @@ import argparse
 import torch
 from src.env import MultipleEnvironments
 from src.model import PPO
-from src.process import eval
+from src.utils import eval
 import torch.multiprocessing as _mp
 from torch.distributions import Categorical
 import torch.nn.functional as F
@@ -28,7 +28,7 @@ def get_args():
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
-    parser.add_argument("--num_processes", type=int, default=8)
+    parser.add_argument("--num_processes", type=int, default=1)
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--log_path", type=str, default="tensorboard/ppo_super_mario_bros")
@@ -158,7 +158,9 @@ def train(args):
                 total_loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
                 optimizer.step()
+                torch.save(model.state_dict(), "{}/model_{}".format(args.saved_path, i))
         print("Episode: {}. Total loss: {}".format(curr_episode, total_loss))
+        torch.save(model.state_dict(), "{}/model_{}_{}".format(args.saved_path, args.world, args.stage))
 
 
 if __name__ == "__main__":
