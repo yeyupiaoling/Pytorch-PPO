@@ -45,7 +45,7 @@ def train(args):
     if not os.path.isdir(args.saved_path):
         os.makedirs(args.saved_path)
     # 创建多进程的游戏环境
-    envs = MultipleEnvironments(args.world, args.stage, args.action_type, args.num_processes)
+    envs = MultipleEnvironments(args.num_processes)
     # 创建模型
     model = PPO(envs.num_states, envs.num_actions)
     # 使用 GPU训练

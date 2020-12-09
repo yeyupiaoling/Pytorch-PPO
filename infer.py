@@ -5,7 +5,6 @@ import argparse
 import torch
 from src.env import create_train_env
 from src.model import PPO
-from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 import torch.nn.functional as F
 
 
@@ -27,24 +26,17 @@ def test(opt):
         torch.cuda.manual_seed(123)
     else:
         torch.manual_seed(123)
-    # 判断游戏动作类型
-    if opt.action_type == "right":
-        actions = RIGHT_ONLY
-    elif opt.action_type == "simple":
-        actions = SIMPLE_MOVEMENT
-    else:
-        actions = COMPLEX_MOVEMENT
     # 创建游戏环境
-    env = create_train_env(opt.world, opt.stage, actions)
+    env = create_train_env()
     # 创建模型
-    model = PPO(env.observation_space.shape[0], len(actions))
+    model = PPO(env.observation_space.shape[1], env.action_space.n)
     # 加载模型参数文件
-    if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage)))
-        model.cuda()
-    else:
-        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage),
-                                         map_location=lambda storage, loc: storage))
+    # if torch.cuda.is_available():
+    #     model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage)))
+    #     model.cuda()
+    # else:
+    #     model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage),
+    #                                      map_location=lambda storage, loc: storage))
     # 切换评估模式
     model.eval()
     # 获取刚开始的游戏图像

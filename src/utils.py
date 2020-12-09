@@ -1,9 +1,10 @@
+from collections import deque
+
 import torch
+import torch.nn.functional as F
+
 from src.env import create_train_env
 from src.model import PPO
-import torch.nn.functional as F
-from collections import deque
-from gym_super_mario_bros.actions import SIMPLE_MOVEMENT, COMPLEX_MOVEMENT, RIGHT_ONLY
 
 
 def eval(args, global_model, num_states, num_actions):
@@ -12,15 +13,8 @@ def eval(args, global_model, num_states, num_actions):
         torch.cuda.manual_seed(123)
     else:
         torch.manual_seed(123)
-    # 判断游戏动作类型
-    if args.action_type == "right":
-        actions = RIGHT_ONLY
-    elif args.action_type == "simple":
-        actions = SIMPLE_MOVEMENT
-    else:
-        actions = COMPLEX_MOVEMENT
     # 创建游戏动作
-    env = create_train_env(args.world, args.stage, actions)
+    env = create_train_env()
     # 获取网络模型
     local_model = PPO(num_states, num_actions)
     # 判断是否可以使用GPU
