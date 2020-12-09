@@ -13,10 +13,8 @@ import numpy as np
 
 
 def get_args():
-    parser = argparse.ArgumentParser(
-        """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Super Mario Bros""")
-    parser.add_argument("--world", type=int, default=1)
-    parser.add_argument("--stage", type=int, default=1)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--game", type=str, default="SuperMarioBros-Nes")
     parser.add_argument("--action_type", type=str, default="simple")
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--gamma', type=float, default=0.9, help='discount factor for rewards')
@@ -28,7 +26,6 @@ def get_args():
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=8)
-    parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--saved_path", type=str, default="models")
     args = parser.parse_args()
@@ -45,7 +42,7 @@ def train(args):
     if not os.path.isdir(args.saved_path):
         os.makedirs(args.saved_path)
     # 创建多进程的游戏环境
-    envs = MultipleEnvironments(args.num_processes)
+    envs = MultipleEnvironments(args.game, args.num_processes)
     # 创建模型
     model = PPO(envs.num_states, envs.num_actions)
     # 使用 GPU训练

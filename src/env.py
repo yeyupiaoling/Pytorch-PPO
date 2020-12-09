@@ -1,26 +1,26 @@
 import retro
 import torch.multiprocessing as mp
 
-from src import retro_util
+from src import retrowrapper
 
 
 # 创建游戏环境
-def create_train_env(is_train=True):
-    env = retro_util.RetroEnv(game='SuperMarioBros-Nes',
-                              use_restricted_actions=retro.Actions.DISCRETE,
-                              skill_frame=4,
-                              resize_shape=(1, 84, 84),
-                              render_preprocess=False,
-                              is_train=is_train)
+def create_train_env(game, is_train=True):
+    env = retrowrapper.RetroWrapper(game=game,
+                                    use_restricted_actions=retro.Actions.DISCRETE,
+                                    skill_frame=4,
+                                    resize_shape=(1, 84, 84),
+                                    render_preprocess=False,
+                                    is_train=is_train)
     return env
 
 
 # 定义多进程环境
 class MultipleEnvironments:
-    def __init__(self, num_envs):
+    def __init__(self, game, num_envs):
         self.agent_conns, self.env_conns = zip(*[mp.Pipe() for _ in range(num_envs)])
         # 创建多个游戏环境
-        self.envs = [create_train_env() for _ in range(num_envs)]
+        self.envs = [create_train_env(game) for _ in range(num_envs)]
         # 获取游戏图像的数量
         self.num_states = self.envs[0].observation_space.shape[0]
         # 获取动作的数量

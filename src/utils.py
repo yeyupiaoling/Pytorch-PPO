@@ -14,7 +14,7 @@ def eval(args, global_model, num_states, num_actions):
     else:
         torch.manual_seed(123)
     # 创建游戏动作
-    env = create_train_env()
+    env = create_train_env(args.game)
     # 获取网络模型
     local_model = PPO(num_states, num_actions)
     # 判断是否可以使用GPU
