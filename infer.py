@@ -11,9 +11,6 @@ import torch.nn.functional as F
 def get_args():
     parser = argparse.ArgumentParser(
         """Implementation of model described in the paper: Proximal Policy Optimization Algorithms for Contra Nes""")
-    parser.add_argument("--world", type=int, default=1)
-    parser.add_argument("--stage", type=int, default=1)
-    parser.add_argument("--action_type", type=str, default="simple")
     parser.add_argument("--saved_path", type=str, default="models")
     parser.add_argument("--output_path", type=str, default="output")
     args = parser.parse_args()
@@ -32,10 +29,10 @@ def infer(args):
     model = PPO(env.observation_space.shape[0], env.action_space.n)
     # 加载模型参数文件
     if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage)))
+        model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage),
+        model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game),
                                          map_location=lambda storage, loc: storage))
     # 切换评估模式
     model.eval()
@@ -59,9 +56,10 @@ def infer(args):
         # 游戏通关
         if done:
             print("游戏结束。。。")
-            if info["flag_get"]:
+            if 'flag_get' in info.keys():
                 print("World {} stage {} 通关".format(args.world, args.stage))
             break
+    env.close()
 
 
 if __name__ == "__main__":

@@ -1,17 +1,17 @@
 import retro
 import torch.multiprocessing as mp
 
-from src import retrowrapper
+from src import retro_util
 
 
 # 创建游戏环境
 def create_train_env(is_train=True):
-    env = retrowrapper.RetroWrapper(game='SuperMarioBros-Nes',
-                                    use_restricted_actions=retro.Actions.DISCRETE,
-                                    skill_frame=4,
-                                    resize_shape=(1, 84, 84),
-                                    render_preprocess=False,
-                                    is_train=is_train)
+    env = retro_util.RetroEnv(game='SuperMarioBros-Nes',
+                              use_restricted_actions=retro.Actions.DISCRETE,
+                              skill_frame=4,
+                              resize_shape=(1, 84, 84),
+                              render_preprocess=False,
+                              is_train=is_train)
     return env
 
 
