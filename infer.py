@@ -20,7 +20,7 @@ def get_args():
     return args
 
 
-def test(opt):
+def infer(args):
     # 固定初始化状态
     if torch.cuda.is_available():
         torch.cuda.manual_seed(123)
@@ -29,14 +29,14 @@ def test(opt):
     # 创建游戏环境
     env = create_train_env()
     # 创建模型
-    model = PPO(env.observation_space.shape[1], env.action_space.n)
+    model = PPO(env.observation_space.shape[0], env.action_space.n)
     # 加载模型参数文件
-    # if torch.cuda.is_available():
-    #     model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage)))
-    #     model.cuda()
-    # else:
-    #     model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(opt.saved_path, opt.world, opt.stage),
-    #                                      map_location=lambda storage, loc: storage))
+    if torch.cuda.is_available():
+        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage)))
+        model.cuda()
+    else:
+        model.load_state_dict(torch.load("{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage),
+                                         map_location=lambda storage, loc: storage))
     # 切换评估模式
     model.eval()
     # 获取刚开始的游戏图像
@@ -57,11 +57,13 @@ def test(opt):
         # 转换每一步都游戏状态
         state = torch.from_numpy(state)
         # 游戏通关
-        if info["flag_get"]:
-            print("World {} stage {} completed".format(opt.world, opt.stage))
+        if done:
+            print("游戏结束。。。")
+            if info["flag_get"]:
+                print("World {} stage {} 通关".format(args.world, args.stage))
             break
 
 
 if __name__ == "__main__":
     opt = get_args()
-    test(opt)
+    infer(opt)

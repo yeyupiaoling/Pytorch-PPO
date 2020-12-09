@@ -9,7 +9,7 @@ def create_train_env(is_train=True):
     env = retrowrapper.RetroWrapper(game='SuperMarioBros-Nes',
                                     use_restricted_actions=retro.Actions.DISCRETE,
                                     skill_frame=4,
-                                    resize_shape=(1, 112, 112),
+                                    resize_shape=(1, 84, 84),
                                     render_preprocess=False,
                                     is_train=is_train)
     return env
@@ -22,7 +22,7 @@ class MultipleEnvironments:
         # 创建多个游戏环境
         self.envs = [create_train_env() for _ in range(num_envs)]
         # 获取游戏图像的数量
-        self.num_states = self.envs[0].observation_space.shape[1]
+        self.num_states = self.envs[0].observation_space.shape[0]
         # 获取动作的数量
         self.num_actions = self.envs[0].action_space.n
         # 启动多有效线程

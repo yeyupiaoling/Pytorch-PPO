@@ -1,6 +1,7 @@
 import cv2
 import retro
 import numpy as np
+from gym.spaces import Box
 
 
 class RetroEnv(retro.RetroEnv):
@@ -19,6 +20,7 @@ class RetroEnv(retro.RetroEnv):
         self.observation_space.shape = resize_shape
         self.game_info = None
         self.states = np.zeros((self.skill_frame, self.resize_shape[1], self.resize_shape[2]), dtype=np.float32)
+        self.observation_space = Box(low=0, high=255, shape=(self.skill_frame, self.resize_shape[1], self.resize_shape[2]))
 
     def step(self, a):
         total_reward = 0
@@ -55,6 +57,7 @@ class RetroEnv(retro.RetroEnv):
             # 通一关就结束
             if info['levelHi'] > self.game_info['levelHi']:
                 terminal = True
+                info['flag_get'] = True
             # 如何在训练的情况下，死一次就结束游戏
             if self.is_train:
                 if info['lives'] != 2:
