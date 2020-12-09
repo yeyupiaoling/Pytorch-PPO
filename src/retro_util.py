@@ -1,3 +1,5 @@
+import random
+
 import cv2
 import retro
 import numpy as np
@@ -21,15 +23,36 @@ class RetroEnv(retro.RetroEnv):
         self.game_info = None
         self.states = np.zeros((self.skill_frame, self.resize_shape[1], self.resize_shape[2]), dtype=np.float32)
         self.observation_space = Box(low=0, high=255, shape=(self.skill_frame, self.resize_shape[1], self.resize_shape[2]))
+        # 有用动作
+        self.actions = self.select_action()
+
+    # 随机获取动作序号
+    def get_random_action(self):
+        r = random.randint(0, len(self.actions))
+        return r
+
+    # 获取动作大小
+    def get_action_dim(self):
+        return len(self.actions)
+
+    # 根据不同的游戏制定有用的动作
+    def select_action(self):
+        if self.game == 'SuperMarioBros-Nes':
+            #  0:不动 3:左 6:右 18:跳 21:后跳 24:前跳
+            return [0, 3, 6, 18, 21, 24]
+        else:
+            return [i for i in range(self.action_space.n)]
 
     def step(self, a):
+        # 根据序号获取真实的动作
+        act = self.actions[a]
         total_reward = 0
         last_states = []
         terminal = False
         info = {}
         # 每一次支持多个帧，让模型看到操作效果
         for i in range(self.skill_frame):
-            obs, reward, terminal, info = super(RetroEnv, self).step(a)
+            obs, reward, terminal, info = super(RetroEnv, self).step(act)
             # 记录所有步数的总分
             total_reward += reward
             # 图像预处理

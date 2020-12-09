@@ -24,9 +24,9 @@ def infer(args):
     else:
         torch.manual_seed(123)
     # 创建游戏环境
-    env = create_train_env()
+    env = create_train_env(args.game)
     # 创建模型
-    model = PPO(env.observation_space.shape[0], env.action_space.n)
+    model = PPO(env.observation_space.shape[0], env.get_action_dim())
     # 加载模型参数文件
     if torch.cuda.is_available():
         model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game)))
@@ -38,6 +38,7 @@ def infer(args):
     model.eval()
     # 获取刚开始的游戏图像
     state = torch.from_numpy(env.reset())
+    total_reward = 0
     while True:
         # 显示界面
         env.render()
@@ -51,14 +52,17 @@ def infer(args):
         action = torch.argmax(policy).item()
         # 执行游戏
         state, reward, done, info = env.step(action)
+        total_reward += reward
         # 转换每一步都游戏状态
         state = torch.from_numpy(state)
+        print("执行的动作：", action)
         # 游戏通关
         if done:
-            print("游戏结束。。。")
+            print("游戏结束，得分：%f" % total_reward)
             if 'flag_get' in info.keys():
                 print("World {} stage {} 通关".format(args.world, args.stage))
             break
+    env.render(close=True)
     env.close()
 
 

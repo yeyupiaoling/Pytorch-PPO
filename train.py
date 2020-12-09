@@ -15,7 +15,6 @@ import numpy as np
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--game", type=str, default="SuperMarioBros-Nes")
-    parser.add_argument("--action_type", type=str, default="simple")
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--gamma', type=float, default=0.9, help='discount factor for rewards')
     parser.add_argument('--tau', type=float, default=1.0, help='parameter for GAE')
@@ -26,8 +25,9 @@ def get_args():
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
     parser.add_argument("--num_processes", type=int, default=16)
-    parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--saved_path", type=str, default="models")
+    parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
+    parser.add_argument("--show_eval_play", type=bool, default=False)
     args = parser.parse_args()
     return args
 
@@ -71,6 +71,7 @@ def train(args):
         states = []
         rewards = []
         dones = []
+        # 执行游戏获取数据
         for _ in range(args.num_local_steps):
             states.append(curr_states)
             # 执行预测
@@ -83,7 +84,7 @@ def train(args):
             # 记录预测数据
             actions.append(action)
             values.append(value.squeeze())
-            #
+            # 计算损失使用
             old_log_policy = old_m.log_prob(action)
             old_log_policies.append(old_log_policy)
             # 向各个进程游戏发送动作
