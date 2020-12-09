@@ -25,7 +25,6 @@ class PPO(nn.Module):
         x = F.relu(self.conv2(x))
         x = F.relu(self.conv3(x))
         x = F.relu(self.conv4(x))
-        print(x.shape)
         x = self.linear(x.view(x.size(0), -1))
         # 定义动作模型和评估模型
         return self.actor_linear(x), self.critic_linear(x)
