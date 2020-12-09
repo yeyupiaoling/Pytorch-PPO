@@ -25,7 +25,7 @@ def get_args():
     parser.add_argument('--num_epochs', type=int, default=10)
     parser.add_argument("--num_local_steps", type=int, default=512)
     parser.add_argument("--num_global_steps", type=int, default=5e6)
-    parser.add_argument("--num_processes", type=int, default=8)
+    parser.add_argument("--num_processes", type=int, default=16)
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
     parser.add_argument("--saved_path", type=str, default="models")
     args = parser.parse_args()
@@ -150,7 +150,7 @@ def train(args):
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
                 optimizer.step()
                 print("Episode: {}. Total loss: {}".format(curr_episode, total_loss))
-        torch.save(model.state_dict(), "{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage))
+        torch.save(model.state_dict(), "{}/model_{}.pth".format(args.saved_path, args.game))
 
 
 if __name__ == "__main__":
