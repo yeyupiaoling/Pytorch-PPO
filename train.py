@@ -10,7 +10,6 @@ import torch.multiprocessing as _mp
 from torch.distributions import Categorical
 import torch.nn.functional as F
 import numpy as np
-import shutil
 
 
 def get_args():
@@ -31,7 +30,7 @@ def get_args():
     parser.add_argument("--num_processes", type=int, default=1)
     parser.add_argument("--save_interval", type=int, default=50, help="Number of steps between savings")
     parser.add_argument("--max_actions", type=int, default=200, help="Maximum repetition steps in test phase")
-    parser.add_argument("--saved_path", type=str, default="trained_models")
+    parser.add_argument("--saved_path", type=str, default="models")
     args = parser.parse_args()
     return args
 
@@ -153,9 +152,8 @@ def train(args):
                 total_loss.backward()
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
                 optimizer.step()
-                torch.save(model.state_dict(), "{}/model_{}".format(args.saved_path, i))
-        print("Episode: {}. Total loss: {}".format(curr_episode, total_loss))
-        torch.save(model.state_dict(), "{}/model_{}_{}".format(args.saved_path, args.world, args.stage))
+                print("Episode: {}. Total loss: {}".format(curr_episode, total_loss))
+        torch.save(model.state_dict(), "{}/model_{}_{}.pth".format(args.saved_path, args.world, args.stage))
 
 
 if __name__ == "__main__":
