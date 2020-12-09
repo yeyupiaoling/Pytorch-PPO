@@ -28,7 +28,7 @@ class RetroEnv(retro.RetroEnv):
 
     # 随机获取动作序号
     def get_random_action(self):
-        r = random.randint(0, len(self.actions))
+        r = random.randint(0, len(self.actions) - 1)
         return r
 
     # 获取动作大小
