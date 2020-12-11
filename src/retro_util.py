@@ -81,6 +81,7 @@ class RetroEnv(retro.RetroEnv):
             # 通一关就结束
             if info['levelHi'] > self.game_info['levelHi']:
                 terminal = True
+                info['flag_get'] = True
             # 如何在训练的情况下，死一次就结束游戏
             if self.is_train:
                 if info['lives'] != 2:
@@ -94,14 +95,14 @@ class RetroEnv(retro.RetroEnv):
             self.obses[:-1] = self.obses[1:]
             # 最后一个指定为当前的游戏帧
             self.obses[-1] = max_state
-        return self.obses, total_reward, terminal, info
+        return self.obses[None, :, :, :].astype(np.float32), total_reward, terminal, info
 
     def reset(self):
         obs = super(RetroEnv, self).reset()
         self.obses = np.zeros(self.observation_space.shape, dtype=np.float32)
         obs = self.preprocess(obs, self.render_preprocess)
         self.obses[:-1] = obs
-        return self.obses
+        return self.obses[None, :, :, :].astype(np.float32)
 
     # 图像预处理
     def preprocess(self, observation, render=False):
