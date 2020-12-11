@@ -29,7 +29,6 @@ def eval(args, global_model, num_states, num_actions):
     curr_step = 0
     # 执行动作的容器
     actions = deque(maxlen=args.max_actions)
-    total_reward = 0
     while True:
         # 显示界面
         if args.show_eval_play is not None and args.show_eval_play:
@@ -41,6 +40,7 @@ def eval(args, global_model, num_states, num_actions):
         # 每结束一次就更新模型参数
         if done:
             local_model.load_state_dict(global_model.state_dict())
+            total_reward = 0
         # 预测动作概率和评估值
         logits, value = local_model(state)
         # 获取动作的序号
