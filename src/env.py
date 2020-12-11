@@ -24,7 +24,7 @@ class MultipleEnvironments:
         # 获取游戏图像的数量
         self.num_states = self.envs[0].observation_space.shape[0]
         # 获取动作的数量
-        self.num_actions = self.envs[0].get_action_dim()
+        self.num_actions = self.envs[0].action_space.n
         # 启动多有效线程
         for index in range(num_envs):
             process = mp.Process(target=self.run, args=(index,))

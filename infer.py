@@ -26,7 +26,7 @@ def infer(args):
     # 创建游戏环境
     env = create_train_env(args.game)
     # 创建模型
-    model = PPO(env.observation_space.shape[0], env.get_action_dim())
+    model = PPO(env.observation_space.shape[0], env.action_space.n)
     # 加载模型参数文件
     if torch.cuda.is_available():
         model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game)))
