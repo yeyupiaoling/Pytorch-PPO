@@ -29,6 +29,7 @@ def eval(args, global_model, num_states, num_actions):
     curr_step = 0
     # 执行动作的容器
     actions = deque(maxlen=args.max_actions)
+    total_reward = 0
     while True:
         # 显示界面
         if args.show_eval_play is not None and args.show_eval_play:
@@ -47,12 +48,14 @@ def eval(args, global_model, num_states, num_actions):
         action = torch.argmax(policy).item()
         # 执行游戏
         state, reward, done, info = env.step(action)
+        total_reward += reward
         # 记录动作
         actions.append(action)
         if curr_step > args.num_global_steps or actions.count(actions[0]) == actions.maxlen:
             done = True
         # 重置游戏状态
         if done:
+            print("游戏得分：%f" % total_reward)
             curr_step = 0
             actions.clear()
             state = env.reset()
