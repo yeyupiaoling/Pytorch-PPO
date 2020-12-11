@@ -1,16 +1,13 @@
-import random
-
 import cv2
 import retro
 import numpy as np
-from gym.spaces import Box
 
 
 class RetroEnv(retro.RetroEnv):
     def __init__(self, game, state=retro.State.DEFAULT, scenario=None, info=None,
                  use_restricted_actions=retro.Actions.FILTERED, record=False, players=1,
                  inttype=retro.data.Integrations.STABLE, obs_type=retro.Observations.IMAGE,
-                 resize_shape=None, skill_frame=1, render_preprocess=False, is_train=False):
+                 resize_shape=None, skill_frame=4, render_preprocess=False, is_train=False):
         super(RetroEnv, self).__init__(game, state=state, scenario=scenario, info=info,
                                        use_restricted_actions=use_restricted_actions,
                                        record=record, players=players, inttype=inttype, obs_type=obs_type)
@@ -19,46 +16,50 @@ class RetroEnv(retro.RetroEnv):
         self.skill_frame = skill_frame
         self.is_train = is_train
         self.render_preprocess = render_preprocess
-        self.observation_space.shape = resize_shape
+        self.observation_space.shape = (self.skill_frame, resize_shape[1], resize_shape[2])
         self.game_info = None
-        self.states = np.zeros((self.skill_frame, self.resize_shape[1], self.resize_shape[2]), dtype=np.float32)
-        self.observation_space = Box(low=0, high=255, shape=(self.skill_frame, self.resize_shape[1], self.resize_shape[2]))
-        # 有用动作
-        self.actions = self.select_action()
-
-    # 随机获取动作序号
-    def get_random_action(self):
-        r = random.randint(0, len(self.actions) - 1)
-        return r
-
-    # 获取动作大小
-    def get_action_dim(self):
-        return len(self.actions)
-
-    # 根据不同的游戏制定有用的动作
-    def select_action(self):
+        self.obses = np.zeros(self.observation_space.shape, dtype=np.float32)
+        self.use_restricted_actions = use_restricted_actions
         if self.game == 'SuperMarioBros-Nes':
-            #  0:不动 3:左 6:右 18:跳 21:后跳 24:前跳
-            return [0, 3, 6, 18, 21, 24]
+            # 最后3个动作才是有效的
+            self.action_space.n = 3
+            if self.use_restricted_actions == retro.Actions.DISCRETE:
+                # 0:不动 3:左 6:右 18:跳 21:后跳 24:前跳
+                self.actions = [0, 3, 6, 18, 21, 24]
+                self.action_space.n = len(self.actions)
+
+    # 动作处理
+    def preprocess_action(self, a):
+        if self.game == 'SuperMarioBros-Nes':
+            # 对超级马里奥的动作处理
+            if self.use_restricted_actions == retro.Actions.FILTERED:
+                # 如果是list的动作，最后3个动作才是有效的
+                action = [0 for _ in range(9)]
+                action[-self.action_space.n:] = a
+                return action
+            elif self.use_restricted_actions == retro.Actions.DISCRETE:
+                return self.actions[a]
+            else:
+                return a
         else:
-            return [i for i in range(self.action_space.n)]
+            return a
 
     def step(self, a):
-        # 根据序号获取真实的动作
-        act = self.actions[a]
+        # 对输入的动作处理成真实游戏动作
+        action = self.preprocess_action(a)
         total_reward = 0
         last_states = []
         terminal = False
         info = {}
         # 每一次支持多个帧，让模型看到操作效果
         for i in range(self.skill_frame):
-            obs, reward, terminal, info = super(RetroEnv, self).step(act)
+            obs, reward, terminal, info = super(RetroEnv, self).step(action)
             # 记录所有步数的总分
             total_reward += reward
-            # 图像预处理
-            obs = self.preprocess(obs, self.render_preprocess)
             # 取中间帧
-            if i >= self.skill_frame / 2:
+            if i >= self.skill_frame / 2 or self.skill_frame == 1:
+                # 图像预处理
+                obs = self.preprocess(obs, self.render_preprocess)
                 last_states.append(obs)
             if terminal:
                 break
@@ -80,7 +81,6 @@ class RetroEnv(retro.RetroEnv):
             # 通一关就结束
             if info['levelHi'] > self.game_info['levelHi']:
                 terminal = True
-                info['flag_get'] = True
             # 如何在训练的情况下，死一次就结束游戏
             if self.is_train:
                 if info['lives'] != 2:
@@ -91,16 +91,17 @@ class RetroEnv(retro.RetroEnv):
             # 将两帧图片拼接起来
             max_state = np.max(np.concatenate(last_states, 0), 0)
             # 指定前面三帧都是上三个的
-            self.states[:-1] = self.states[1:]
+            self.obses[:-1] = self.obses[1:]
             # 最后一个指定为当前的游戏帧
-            self.states[-1] = max_state
-        return self.states[None, :, :, :].astype(np.float32), total_reward, terminal, info
+            self.obses[-1] = max_state
+        return self.obses, total_reward, terminal, info
 
     def reset(self):
         obs = super(RetroEnv, self).reset()
+        self.obses = np.zeros(self.observation_space.shape, dtype=np.float32)
         obs = self.preprocess(obs, self.render_preprocess)
-        self.states = np.concatenate([obs for _ in range(self.skill_frame)], 0)
-        return self.states[None, :, :, :].astype(np.float32)
+        self.obses[:-1] = obs
+        return self.obses
 
     # 图像预处理
     def preprocess(self, observation, render=False):

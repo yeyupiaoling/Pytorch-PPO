@@ -14,8 +14,7 @@ def main():
 
     while True:
         # 游戏生成的随机动作，int类型数值
-        action = env.get_random_action()
-        print(action)
+        action = env.action_space.sample()
         # 执行游戏
         obs, reward, terminal, info = env.step(action)
         env.render()
