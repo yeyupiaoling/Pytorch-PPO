@@ -1,4 +1,3 @@
-import retro
 import torch.multiprocessing as mp
 
 from src import retrowrapper
@@ -7,7 +6,6 @@ from src import retrowrapper
 # 创建游戏环境
 def create_train_env(game, is_train=True):
     env = retrowrapper.RetroWrapper(game=game,
-                                    use_restricted_actions=retro.Actions.DISCRETE,
                                     skill_frame=4,
                                     resize_shape=(1, 84, 84),
                                     render_preprocess=False,

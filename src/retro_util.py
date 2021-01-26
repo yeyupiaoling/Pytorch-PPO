@@ -1,6 +1,7 @@
 import cv2
 import retro
 import numpy as np
+from src.discretizer import SonicDiscretizer
 
 
 class RetroEnv(retro.RetroEnv):
@@ -20,33 +21,8 @@ class RetroEnv(retro.RetroEnv):
         self.game_info = None
         self.obses = np.zeros(self.observation_space.shape, dtype=np.float32)
         self.use_restricted_actions = use_restricted_actions
-        if self.game == 'SuperMarioBros-Nes':
-            # 最后3个动作才是有效的
-            self.action_space.n = 3
-            if self.use_restricted_actions == retro.Actions.DISCRETE:
-                # 0:不动 3:左 6:右 18:跳 21:后跳 24:前跳
-                self.actions = [0, 3, 6, 18, 21, 24]
-                self.action_space.n = len(self.actions)
 
-    # 动作处理
-    def preprocess_action(self, a):
-        if self.game == 'SuperMarioBros-Nes':
-            # 对超级马里奥的动作处理
-            if self.use_restricted_actions == retro.Actions.FILTERED:
-                # 如果是list的动作，最后3个动作才是有效的
-                action = [0 for _ in range(9)]
-                action[-self.action_space.n:] = a
-                return action
-            elif self.use_restricted_actions == retro.Actions.DISCRETE:
-                return self.actions[a]
-            else:
-                return a
-        else:
-            return a
-
-    def step(self, a):
-        # 对输入的动作处理成真实游戏动作
-        action = self.preprocess_action(a)
+    def step(self, action):
         total_reward = 0
         last_states = []
         terminal = False
@@ -79,6 +55,7 @@ class RetroEnv(retro.RetroEnv):
             # 通关奖励
             total_reward += (info['levelHi'] - self.game_info['levelHi']) * 100
             # 通一关就结束
+            info['flag_get'] = False
             if info['levelHi'] > self.game_info['levelHi']:
                 terminal = True
                 info['flag_get'] = True
@@ -137,4 +114,4 @@ class RetroEnv(retro.RetroEnv):
 
 
 def retro_make_func(game, **kwargs):
-    return RetroEnv(game, **kwargs)
+    return SonicDiscretizer(RetroEnv(game, **kwargs))

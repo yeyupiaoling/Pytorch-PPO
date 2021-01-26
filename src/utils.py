@@ -53,9 +53,13 @@ def eval(args, global_model, num_states, num_actions):
         actions.append(action)
         if curr_step > args.num_global_steps or actions.count(actions[0]) == actions.maxlen:
             done = True
+        # 游戏通关
+        if info["flag_get"]:
+            print("World {} stage {} 通关".format(args.world, args.stage))
+            torch.save(local_model.state_dict(), "{}/model_{}_finish.pth".format(args.saved_path, args.game))
         # 重置游戏状态
         if done:
-            print("游戏得分：%f" % total_reward)
+            # print("游戏得分：%f" % total_reward)
             curr_step = 0
             actions.clear()
             state = env.reset()

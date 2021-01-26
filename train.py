@@ -152,7 +152,7 @@ def train(args):
                 torch.nn.utils.clip_grad_norm_(model.parameters(), 0.5)
                 optimizer.step()
                 total_losses.append(float(total_loss))
-            print("Episode: {}. Total loss: {:.4f}".format(curr_episode, np.mean(total_losses)))
+        print("Episode: {}. Total loss: {:.4f}".format(curr_episode, np.mean(total_losses)))
         torch.save(model.state_dict(), "{}/model_{}.pth".format(args.saved_path, args.game))
 
 

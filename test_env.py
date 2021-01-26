@@ -1,15 +1,15 @@
-import retro
-
 from src import retrowrapper
 
 
 def main():
     # 获取游戏
     env = retrowrapper.RetroWrapper(game="SuperMarioBros-Nes",
-                                    use_restricted_actions=retro.Actions.DISCRETE,
                                     skill_frame=4,
                                     resize_shape=(1, 84, 84),
                                     render_preprocess=False)
+    print(env.observation_space.shape)
+    print(env.action_space.n)
+
     obs = env.reset()
 
     while True:
