@@ -34,7 +34,7 @@ class SonicDiscretizer(Discretizer):
 
     def __init__(self, env):
         if env.game == "SuperMarioBros-Nes":
-            combos = [[], ['RIGHT'], ['RIGHT', 'A'], ['RIGHT', 'A', 'B'], ['A'], ['LEFT']]
+            combos = [[], ['RIGHT'], ['RIGHT', 'A'], ['RIGHT', 'A', 'B'], ['A']]
         else:
             combos = [[], ['RIGHT'], ['RIGHT', 'A'], ['RIGHT', 'B'], ['RIGHT', 'A', 'B'], ['A'], ['LEFT'],
                       ['LEFT', 'A'], ['LEFT', 'B'], ['LEFT', 'A', 'B'], ['DOWN'], ['UP']]

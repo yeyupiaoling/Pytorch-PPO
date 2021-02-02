@@ -53,7 +53,7 @@ class RetroEnv(retro.RetroEnv):
             # 记录得到的分数
             total_reward += (info['score'] - self.game_info['score']) * 0.1
             # 通关奖励
-            total_reward += (info['levelHi'] - self.game_info['levelHi']) * 100
+            total_reward += (info['levelHi'] - self.game_info['levelHi']) * 50
             # 通一关就结束
             info['flag_get'] = False
             if info['levelHi'] > self.game_info['levelHi']:
@@ -62,7 +62,7 @@ class RetroEnv(retro.RetroEnv):
             # 如何在训练的情况下，死一次就结束游戏
             if self.is_train:
                 if info['lives'] != 2:
-                    total_reward = -10
+                    total_reward = -50
                     terminal = True
             self.game_info = info
         if not terminal:
@@ -94,7 +94,6 @@ class RetroEnv(retro.RetroEnv):
         if self.resize_shape[0] == 1:
             # 把图像转成灰度图
             observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
-            # 把其他的亮度调成一种，减低图像的复杂度
             observation = cv2.resize(observation, (self.resize_shape[2], self.resize_shape[1]))
             if render:
                 # 显示处理过的图像
