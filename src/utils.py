@@ -29,6 +29,7 @@ def eval(args, global_model, num_states, num_actions):
     curr_step = 0
     # 执行动作的容器
     actions = deque(maxlen=args.max_actions)
+    max_reward = 0
     while True:
         # 显示界面
         if args.show_eval_play is not None and args.show_eval_play:
@@ -56,12 +57,14 @@ def eval(args, global_model, num_states, num_actions):
         # 游戏通关
         if info["flag_get"]:
             print("World {} stage {} 通关".format(args.world, args.stage))
-            torch.save(local_model.state_dict(), "{}/model_{}_finish.pth".format(args.saved_path, args.game))
         # 重置游戏状态
         if done:
-            # print("游戏得分：%f" % total_reward)
+            print("游戏得分：%f" % total_reward)
             curr_step = 0
             actions.clear()
             state = env.reset()
+            if max_reward < total_reward:
+                torch.save(local_model.state_dict(), "{}/model_best_{}.pth".format(args.saved_path, args.game))
+                max_reward = total_reward
         # 转换每一步都游戏状态
         state = torch.from_numpy(state)

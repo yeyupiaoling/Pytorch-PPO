@@ -1,4 +1,5 @@
 import os
+import time
 
 os.environ['OMP_NUM_THREADS'] = '1'
 import argparse
@@ -32,7 +33,7 @@ def infer(args):
         model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game)))
         model.cuda()
     else:
-        model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game),
+        model.load_state_dict(torch.load("{}/model_best_{}.pth".format(args.saved_path, args.game),
                                          map_location=lambda storage, loc: storage))
     # 切换评估模式
     model.eval()
@@ -55,13 +56,15 @@ def infer(args):
         total_reward += reward
         # 转换每一步都游戏状态
         state = torch.from_numpy(state)
-        print("执行的动作：", action)
+        # print("执行的动作：", action)
+        print(info)
         # 游戏通关
         if done:
             print("游戏结束，得分：%f" % total_reward)
-            if 'flag_get' in info.keys():
-                print("World {} stage {} 通关".format(args.world, args.stage))
+            if info['flag_get']:
+                print("{} 通关".format(args.game))
             break
+        time.sleep(0.05)
     env.render(close=True)
     env.close()
 
