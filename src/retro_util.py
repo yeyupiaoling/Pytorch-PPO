@@ -9,20 +9,20 @@ class RetroEnv(retro.RetroEnv):
     def __init__(self, game, state=retro.State.DEFAULT, scenario=None, info=None,
                  use_restricted_actions=retro.Actions.FILTERED, record=False, players=1,
                  inttype=retro.data.Integrations.STABLE, obs_type=retro.Observations.IMAGE,
-                 resize_shape=(1, 112, 112), skill_frame=4, render_preprocess=False, is_train=False):
+                 resize_shape=(1, 112, 112), skill_frame=4, render_preprocess=False):
         super(RetroEnv, self).__init__(game, state=state, scenario=scenario, info=info,
                                        use_restricted_actions=use_restricted_actions,
                                        record=record, players=players, inttype=inttype, obs_type=obs_type)
         self.game = game
         self.resize_shape = resize_shape
         self.skill_frame = skill_frame
-        self.is_train = is_train
         self.render_preprocess = render_preprocess
         self.observation_space = Box(low=0, high=255, shape=(skill_frame, resize_shape[1], resize_shape[2]))
         self.game_info = None
         self.obses = np.zeros(self.observation_space.shape, dtype=np.float32)
         self.use_restricted_actions = use_restricted_actions
-        self.last_local = 0
+
+        self.time_sum, self.time, self.score, self.xscrollLo = 0, 0, 0, 0
 
     def step(self, action):
         total_reward = 0
@@ -39,17 +39,12 @@ class RetroEnv(retro.RetroEnv):
                 # 图像预处理
                 obs = self.preprocess(obs)
                 last_states.append(obs)
-            if self.game == "SuperMarioBros-Nes":
-                info['flag_get'] = False
-                if info['lives'] != 2:
-                    terminal = True
-                    total_reward -= 50
-                if info['levelLo'] != 0:
-                    terminal = True
-                    info['flag_get'] = True
-                    total_reward += 50
+            # 死一条命就结束
+            if info['lives'] != 2:
+                terminal = True
             # 结束游戏
             if terminal:
+                total_reward -= 50
                 self.reset()
                 return self.obses[None, :, :, :].astype(np.float32), total_reward, terminal, info
         # 将两帧图片拼接起来
@@ -79,14 +74,16 @@ class RetroEnv(retro.RetroEnv):
         if self.resize_shape[0] == 1:
             # 把图像转成灰度图
             observation = cv2.cvtColor(observation, cv2.COLOR_RGB2GRAY)
-            observation = cv2.resize(observation, (self.resize_shape[2], self.resize_shape[1]), interpolation=cv2.INTER_AREA)
+            observation = cv2.resize(observation, (self.resize_shape[2], self.resize_shape[1]),
+                                     interpolation=cv2.INTER_AREA)
             if self.render_preprocess:
                 # 显示处理过的图像
                 cv2.imshow("preprocess2", observation)
                 cv2.waitKey(1)
             observation = np.expand_dims(observation, axis=0)
         else:
-            observation = cv2.resize(observation, (self.resize_shape[2], self.resize_shape[1]), interpolation=cv2.INTER_AREA)
+            observation = cv2.resize(observation, (self.resize_shape[2], self.resize_shape[1]),
+                                     interpolation=cv2.INTER_AREA)
             observation = cv2.cvtColor(observation, cv2.COLOR_RGB2BGR)
             if self.render_preprocess:
                 # 显示处理过的图像

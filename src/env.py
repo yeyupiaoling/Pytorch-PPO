@@ -4,12 +4,11 @@ from src import retrowrapper
 
 
 # 创建游戏环境
-def create_train_env(game, is_train=True):
+def create_train_env(game, skill_frame=4, resize_shape=(1, 84, 84), render_preprocess=False):
     env = retrowrapper.RetroWrapper(game=game,
-                                    skill_frame=4,
-                                    resize_shape=(1, 84, 84),
-                                    render_preprocess=False,
-                                    is_train=is_train)
+                                    skill_frame=skill_frame,
+                                    resize_shape=resize_shape,
+                                    render_preprocess=render_preprocess)
     return env
 
 

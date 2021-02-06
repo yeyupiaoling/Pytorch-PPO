@@ -1,14 +1,12 @@
-import time
-
 import cv2
 import numpy as np
 
-from src import retrowrapper
+from src.env import create_train_env
 
 
 def main():
     # 获取游戏
-    env = retrowrapper.RetroWrapper(game="SuperMarioBros-Nes")
+    env = create_train_env(game="SuperMarioBros-Nes")
     print(env.observation_space.shape)
     print(env.action_space.n)
 
@@ -34,8 +32,7 @@ def main():
         print("terminal:", terminal)
         print("info:", info)
         if terminal:
-            # obs = env.reset()
-            break
+            obs = env.reset()
 
 
 if __name__ == "__main__":

@@ -1,4 +1,5 @@
 import gym
+from src.actions import Actions
 import numpy as np
 
 
@@ -28,14 +29,14 @@ class Discretizer(gym.ActionWrapper):
 
 class SonicDiscretizer(Discretizer):
     """
-    Use Sonic-specific discrete actions
-    based on https://github.com/openai/retro-baselines/blob/master/agents/sonic_util.py
+    buttons = ["B", "A", "MODE", "START", "UP", "DOWN", "LEFT", "RIGHT", "C", "Y", "X", "Z"]
+    actions = [['LEFT'], ['RIGHT'], ['LEFT', 'DOWN'], ['RIGHT', 'DOWN'], ['DOWN'], ['DOWN', 'B'], ['B']]
     """
 
     def __init__(self, env):
-        if env.game == "SuperMarioBros-Nes":
-            combos = [[], ['LEFT'], ['RIGHT'], ['RIGHT', 'A'], ['RIGHT', 'B'], ['RIGHT', 'A', 'B'], ['A']]
+
+        if env.game in Actions.keys():
+            combos = Actions[env.game]
         else:
-            combos = [[], ['RIGHT'], ['RIGHT', 'A'], ['RIGHT', 'B'], ['RIGHT', 'A', 'B'], ['A'], ['LEFT'],
-                      ['LEFT', 'A'], ['LEFT', 'B'], ['LEFT', 'A', 'B'], ['DOWN'], ['UP']]
+            combos = Actions['others']
         super().__init__(env=env, combos=combos)

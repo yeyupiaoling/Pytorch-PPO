@@ -30,7 +30,7 @@ def infer(args):
     model = PPO(env.observation_space.shape[0], env.action_space.n)
     # 加载模型参数文件
     if torch.cuda.is_available():
-        model.load_state_dict(torch.load("{}/model_{}.pth".format(args.saved_path, args.game)))
+        model.load_state_dict(torch.load("{}/model_best_{}.pth".format(args.saved_path, args.game)))
         model.cuda()
     else:
         model.load_state_dict(torch.load("{}/model_best_{}.pth".format(args.saved_path, args.game),
@@ -56,13 +56,10 @@ def infer(args):
         total_reward += reward
         # 转换每一步都游戏状态
         state = torch.from_numpy(state)
-        # print("执行的动作：", action)
         print(info)
         # 游戏通关
         if done:
             print("游戏结束，得分：%f" % total_reward)
-            if info['flag_get']:
-                print("{} 通关".format(args.game))
             break
         time.sleep(0.05)
     env.render(close=True)
