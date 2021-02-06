@@ -11,8 +11,8 @@ import torch.nn.functional as F
 
 def get_args():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--game", type=str, default="SuperMarioBros-Nes")
-    parser.add_argument("--saved_path", type=str, default="models")
+    parser.add_argument("--game",        type=str, default="SuperMarioBros-Nes")
+    parser.add_argument("--saved_path",  type=str, default="models")
     parser.add_argument("--output_path", type=str, default="output")
     args = parser.parse_args()
     return args
