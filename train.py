@@ -15,6 +15,7 @@ import numpy as np
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--game",             type=str,   default="SuperMarioBros-Nes", help='游戏名称')
+    parser.add_argument("--trained_model",    type=str,   default=None, help='预训练模型')
     parser.add_argument('--lr',               type=float, default=1e-4, help='模型的学习率')
     parser.add_argument('--gamma',            type=float, default=0.9,  help='奖励折扣率')
     parser.add_argument('--tau',              type=float, default=1.0,  help='GAE参数')
@@ -43,6 +44,9 @@ def train(args):
     envs = MultipleEnvironments(args.game, args.num_processes)
     # 创建模型
     model = PPO(envs.num_states, envs.num_actions)
+    # 加载预训练模型
+    if args.trained_model is not None:
+        model.load_state_dict(torch.load(args.trained_model))
     # 使用 GPU训练
     if torch.cuda.is_available():
         model.cuda()
