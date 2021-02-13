@@ -1,5 +1,5 @@
 import multiprocessing
-from src import retro_util as retro_util
+from src import retro_util
 import gc
 
 MAKE_RETRIES = 5

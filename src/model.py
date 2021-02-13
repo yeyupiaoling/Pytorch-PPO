@@ -6,8 +6,8 @@ class PPO(nn.Module):
     def __init__(self, num_inputs, num_actions):
         super(PPO, self).__init__()
         self.conv1 = nn.Conv2d(num_inputs, 32, 3, stride=2, padding=1)
-        self.conv2 = nn.Conv2d(32, 32, 3, stride=2, padding=1)
-        self.conv3 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
+        self.conv2 = nn.Conv2d(32, 64, 3, stride=2, padding=1)
+        self.conv3 = nn.Conv2d(64, 64, 3, stride=2, padding=1)
         self.conv4 = nn.Conv2d(64, 64, 3, stride=2, padding=1)
         self.linear = nn.Linear(64 * 6 * 6, 1024)
         self.critic_linear = nn.Linear(1024, 1)
