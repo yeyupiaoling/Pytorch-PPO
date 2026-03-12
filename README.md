@@ -129,10 +129,3 @@ SnowBrothers-Nes
 ```shell
 python infer.py --game=SuperMarioBros-Nes
 ```
-
-# 模型下载
-
-| 游戏名称 | 预训练模型 | 最好的通关模型 |
-| :---: | :---: | :---: |
-| SuperMarioBros-Nes（超级马里奥） | [点击下载](https://resource.doiduoyi.com/#y384501) | [点击下载](https://resource.doiduoyi.com/#y384501) |
-| SnowBrothers-Nes（雪人兄弟） | [点击下载](https://resource.doiduoyi.com/#y384501) | [点击下载](https://resource.doiduoyi.com/#y384501) |
